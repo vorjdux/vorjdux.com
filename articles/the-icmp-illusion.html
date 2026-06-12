@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The ICMP Illusion | Matheus Santos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #08090a;
+      --bg-panel:  #0f1011;
+      --bg-surface:#191a1b;
+      --text-1:    #f7f8f8;
+      --text-2:    #d0d6e0;
+      --text-3:    #8a8f98;
+      --text-4:    #62666d;
+      --accent:    #5e6ad2;
+      --accent-2:  #7170ff;
+      --accent-3:  #828fff;
+      --border:    rgba(255,255,255,0.08);
+      --border-s:  rgba(255,255,255,0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-2);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-feature-settings: 'cv01', 'ss03';
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,9,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-s);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 14px;
+      font-weight: 510;
+      color: var(--text-1);
+      letter-spacing: -0.182px;
+      text-decoration: none;
+    }
+
+    .nav-logo-tld { color: var(--accent); }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .nav-logo-cursor {
+      color: var(--accent);
+      animation: blink 1.1s step-end infinite;
+      margin-left: 1px;
+      font-weight: 300;
+    }
+
+    .nav-back {
+      font-size: 13px;
+      font-weight: 510;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: -0.13px;
+      transition: color 0.15s;
+    }
+
+    .nav-back:hover { color: var(--text-1); }
+
+    /* ARTICLE */
+    .article-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 72px 24px 96px;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .article-date {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-4);
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-2);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 9px;
+    }
+
+    .tag.accent {
+      color: var(--accent-2);
+      border-color: rgba(113,112,255,0.25);
+      background: rgba(113,112,255,0.06);
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 510;
+      color: var(--text-1);
+      line-height: 1.15;
+      letter-spacing: -0.6px;
+      margin-bottom: 40px;
+    }
+
+    .article-body h3 {
+      font-size: 18px;
+      font-weight: 590;
+      color: var(--text-1);
+      letter-spacing: -0.3px;
+      margin: 40px 0 14px;
+    }
+
+    .article-body h4 {
+      font-size: 15px;
+      font-weight: 590;
+      color: var(--text-2);
+      letter-spacing: -0.165px;
+      margin: 28px 0 10px;
+    }
+
+    .article-body p {
+      font-size: 16px;
+      color: var(--text-3);
+      line-height: 1.75;
+      letter-spacing: -0.13px;
+      margin-bottom: 20px;
+    }
+
+    .article-body p:last-child { margin-bottom: 0; }
+
+    .article-body code {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 13px;
+      color: var(--accent-2);
+      background: rgba(113,112,255,0.08);
+      border: 1px solid rgba(113,112,255,0.15);
+      border-radius: 3px;
+      padding: 1px 6px;
+    }
+
+    .article-body ol {
+      margin: 0 0 20px 24px;
+      color: var(--text-3);
+      font-size: 16px;
+      line-height: 1.75;
+      letter-spacing: -0.13px;
+    }
+
+    .article-body ol li { margin-bottom: 8px; }
+
+    .article-body strong {
+      color: var(--text-2);
+      font-weight: 590;
+    }
+
+    .quote-block {
+      border-left: 2px solid var(--accent);
+      padding: 4px 0 4px 20px;
+      margin: 32px 0;
+    }
+
+    .quote-block p {
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--text-2);
+      line-height: 1.7;
+      letter-spacing: -0.165px;
+      margin-bottom: 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-s);
+      margin: 48px 0;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border-s);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-4);
+      letter-spacing: -0.13px;
+    }
+
+    footer a { color: var(--text-3); text-decoration: none; }
+    footer a:hover { color: var(--text-1); }
+
+    @media (max-width: 640px) {
+      .article-wrap { padding: 48px 20px 72px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">vorjdux<span class="nav-logo-tld">.com</span><span class="nav-logo-cursor">_</span></a>
+    <a href="/#articles" class="nav-back">← Articles</a>
+  </nav>
+
+  <div class="article-wrap">
+    <div class="article-meta">
+      <span class="article-date">2026-06</span>
+      <span class="tag">Networking</span>
+      <span class="tag">Azure</span>
+      <span class="tag accent">Rust</span>
+    </div>
+
+    <h1>The ICMP Illusion: Bypassing Cloud SDN to Measure True L4 Latency</h1>
+
+    <div class="article-body">
+
+      <p>If you run stateful workloads on a major cloud provider, Azure in our case, your ICMP telemetry may be lying to you.</p>
+
+      <p>While debugging a persistent 4–6 ms latency floor between our application platform and our persistence layer (MongoDB, Redis, and a managed SQL database), we saw the floor appear to degrade under high compute load. The standard observability stack, which leaned on <code>ping</code> metrics, showed erratic spikes reaching about 10 ms. Our first hypothesis was a saturated interface or a hypervisor bottleneck.</p>
+
+      <p>The telemetry was a false positive. We were not hitting a network limit. We were hitting a Software-Defined Networking (SDN) abstraction.</p>
+
+      <h3>The problem with ICMP in the cloud</h3>
+
+      <p>In Azure, host networking policy (private virtual networks, load-balancer NAT, ACLs, QoS) is implemented on the physical host by the Virtual Filtering Platform (VFP), Azure's programmable virtual switch. On VMs with Accelerated Networking, the steady-state datapath for established flows is offloaded to a SmartNIC (FPGA) and bypasses the host CPU. The host software path handles only the first packet of a flow and any traffic that is not offloaded.</p>
+
+      <p>ICMP is one of the classes that does not benefit from that offload. Microsoft's documentation states that ICMP is treated differently from application traffic and that <code>ping</code> does not measure the accelerated-networking datapath, so ICMP round-trip times do not represent what TCP and UDP workloads experience. ICMP echo is also commonly deprioritized by hosts and routers under load: when more important traffic is queued, echo requests are among the first to be delayed or dropped.</p>
+
+      <p>The failure mode we observed follows from this, though it is inference from behavior rather than a documented Azure guarantee. Under host CPU or packets-per-second pressure, ICMP rides the contended software path and its latency inflates, while the offloaded TCP and UDP datapath is unaffected. If a Grafana panel derives inter-node latency from ICMP, any compute load manufactures a network bottleneck that does not exist at L4 or L7.</p>
+
+      <p>To measure the real data-plane propagation delay — without the latency added by application-level <code>accept()</code> loops or thread-pool exhaustion in the database — we needed an L4 telemetry agent.</p>
+
+      <p>The requirements were strict:</p>
+
+      <ol>
+        <li>Measure TCP connection-establishment time, which is effectively one round trip (SYN, then SYN-ACK), the cost a real client pays before it can send a byte.</li>
+        <li>Consume minimal CPU and memory on the target, to keep the observer effect small.</li>
+        <li>Avoid the standard asynchronous-runtime overhead.</li>
+      </ol>
+
+      <p>Existing options either shipped heavy agents or required kernel facilities like eBPF, which was not viable across all of our heterogeneous environments. So I built <code>wire-probe</code>.</p>
+
+      <h3>Architecture decisions, as implemented</h3>
+
+      <p><code>wire-probe</code> is written in Rust and avoids the standard async ecosystem in favor of system-level kernel interfaces and aggressive compiler settings. The description below matches the shipped code, including its trade-offs.</p>
+
+      <h4>1. io_uring instead of tokio (server mode)</h4>
+
+      <p>A general-purpose async runtime such as <code>tokio</code> carries a multi-megabyte RSS baseline (typically single-digit MB for a minimal multi-threaded runtime, counting its worker threads) before a single packet is processed. For a binary whose only job is to acknowledge and drop TCP connections, that overhead is not justified.</p>
+
+      <p>The server mode, which runs on the DB nodes, uses a serial <code>io_uring</code> accept loop. It submits an <code>Accept</code> SQE, calls <code>submit_and_wait</code> for completion, drops the connection with a synchronous <code>libc::close(fd)</code>, re-arms, and repeats.</p>
+
+      <p>There is a trade-off here. This is a serial loop, with one <code>submit_and_wait</code> syscall per accepted connection, and the <code>close</code> is an ordinary blocking syscall rather than an <code>io_uring</code> operation. It is not the zero-syscall, multishot-accept design that <code>io_uring</code> makes possible (multishot accept would cut the per-connection syscall cost on kernels 5.19 and newer). What it does guarantee is a flat memory profile: no per-connection allocation and no thread per connection, so the daemon holds at roughly 500 KB RSS regardless of inbound connection rate.</p>
+
+      <h4>2. Blocking connect for deterministic probing</h4>
+
+      <p>In probe mode, which runs on the application nodes, asynchronous timers introduce scheduler drift under host load. Instead, the RTT is taken by wrapping <code>std::net::TcpStream::connect_timeout</code> with <code>std::time::Instant</code>.</p>
+
+      <p><code>connect_timeout</code> issues a non-blocking <code>connect</code> and then waits on the socket's readiness through the OS poller. The calling thread parks in that kernel wait until the handshake completes or <code>--timeout</code> elapses, with no userland spin. The measured interval is the establishment time, about one RTT. No application data is sent or received, so the number is free of <code>recv</code> and <code>send</code> latency.</p>
+
+      <p>DNS is resolved once at startup, not per probe. The target is resolved to a single <code>SocketAddr</code> before the loop begins, so there is no <code>getaddrinfo</code> syscall in the hot path and a slow resolver cannot corrupt the probe cadence. The trade-off is at the other end: the first resolved address is pinned for the life of the process, so DNS-level failover or record changes are not picked up until restart. For fixed-target probing against known DB nodes that is the right bias. If you need failover, pass an IP per instance or restart on change.</p>
+
+      <h4>3. Binary density and an allocation-free export path</h4>
+
+      <p>To keep the binary small and avoid fragmentation over long runs, it is compiled against <code>musl-libc</code> with fat LTO, <code>codegen-units = 1</code>, <code>panic = "abort"</code>, and <code>strip = true</code>. <code>panic = "abort"</code> removes the stack-unwinding tables. The result is a 370 KB static binary with no glibc version dependency. The probe process runs at roughly 300 KB RSS. These figures are from the project's own release build.</p>
+
+      <p>The export and formatting path is allocation-free. The static portion of each line (<code>tcp_latency,target=...,az=... rtt_ms=</code> for Influx Line Protocol, or the <code>PUTVAL ...</code> prefix for Collectd) is built once at construction. On each send, the value and timestamp are written into a single reused buffer using <code>ryu</code> for floats and <code>itoa</code> for integers, both of which format into stack space and skip the standard library's <code>String</code> machinery. There is no <code>format!</code> call and no per-send heap allocation.</p>
+
+      <h4>4. The Collectd integration</h4>
+
+      <p>Collectd's <code>Exec</code> plugin runs a long-lived child process once and reads its <code>stdout</code> over a pipe. It does not re-<code>fork</code> or re-<code>exec</code> per interval. That model works, but it means deploying and supervising a separate binary alongside collectd.</p>
+
+      <p><code>wire-probe</code> also ships a native Python plugin (<code>wire_probe.py</code>). Rather than wrapping the Rust binary, it is a small, self-contained reimplementation that uses Python's <code>socket.create_connection</code>, hooks collectd's <code>read_cb</code>, and emits the same value types as the stock <code>ping</code> plugin (<code>ping</code>, <code>ping_droprate</code>, <code>ping_stddev</code>), so existing dashboards and thresholds work without changes. The plugin also bounds its own work: a total per-<code>read_cb</code> wall-clock budget stops a misconfiguration from starving collectd's read thread.</p>
+
+      <p>One caveat: this path runs in CPython doing blocking connects. It shares none of the Rust binary's properties — not the <code>musl</code> footprint, not the <code>io_uring</code> server, not the allocation-free export. It is a convenience integration for collectd shops, not the zero-footprint agent. Use the Rust probe where the footprint matters, and the Python plugin where drop-in collectd compatibility matters more.</p>
+
+      <h3>Conclusion</h3>
+
+      <p>With <code>wire-probe</code> deployed, we separated the actual network floor from our internal compute constraints. The 4–6 ms floor is independent of compute load and of ICMP queuing. It is a stable property of the underlying L3 and L4 path, not an application bottleneck and not a <code>ping</code> artifact. Once the measurement stopped going through ICMP, the spikes under load disappeared.</p>
+
+      <p>The cause needs to be stated carefully. Azure targets inter-zone (cross-AZ, same region) round-trip latency under about 2 ms, and real measurements usually come in well below that. A 6 ms floor does not fit a plain cross-AZ explanation. It points to traffic crossing regions, or to a network virtual appliance or gateway hop in the path. Either way it is a routing reality you can design around, but confirm it against your own topology before naming it.</p>
+
+      <div class="quote-block">
+        <p>If you are hunting ghosts in cloud network telemetry, stop trusting <code style="background:rgba(113,112,255,0.08);border:1px solid rgba(113,112,255,0.15);border-radius:3px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:15px;">ping</code>. Measure the wire.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <p>Source and pre-compiled <code>musl</code> binaries: <a href="https://github.com/vorjdux/wire-probe" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:none;">github.com/vorjdux/wire-probe</a></p>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Matheus Santos · <a href="/">vorjdux.com</a> · Built with mechanical sympathy.</p>
+  </footer>
+
+</body>
+</html>
