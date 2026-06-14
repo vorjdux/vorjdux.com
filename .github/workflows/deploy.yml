@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v0.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Linode
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          install -m 600 /dev/null /tmp/deploy_key
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          rsync -az --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            ./ $DEPLOY_USER@$DEPLOY_HOST:/var/www/vorjdux.com/
+          rm -f /tmp/deploy_key
