@@ -249,7 +249,7 @@
 
       <p>The failure mode we observed follows from this, though it is inference from behavior rather than a documented Azure guarantee. Under host CPU or packets-per-second pressure, ICMP rides the contended software path and its latency inflates, while the offloaded TCP and UDP datapath is unaffected. If a Grafana panel derives inter-node latency from ICMP, any compute load manufactures a network bottleneck that does not exist at L4 or L7.</p>
 
-      <p>To measure the real data-plane propagation delay — without the latency added by application-level <code>accept()</code> loops or thread-pool exhaustion in the database — we needed an L4 telemetry agent.</p>
+      <p>To measure the real data-plane propagation delay, without the latency added by application-level <code>accept()</code> loops or thread-pool exhaustion in the database, we needed an L4 telemetry agent.</p>
 
       <p>The requirements were strict:</p>
 
@@ -293,7 +293,7 @@
 
       <p><code>wire-probe</code> also ships a native Python plugin (<code>wire_probe.py</code>). Rather than wrapping the Rust binary, it is a small, self-contained reimplementation that uses Python's <code>socket.create_connection</code>, hooks collectd's <code>read_cb</code>, and emits the same value types as the stock <code>ping</code> plugin (<code>ping</code>, <code>ping_droprate</code>, <code>ping_stddev</code>), so existing dashboards and thresholds work without changes. The plugin also bounds its own work: a total per-<code>read_cb</code> wall-clock budget stops a misconfiguration from starving collectd's read thread.</p>
 
-      <p>One caveat: this path runs in CPython doing blocking connects. It shares none of the Rust binary's properties — not the <code>musl</code> footprint, not the <code>io_uring</code> server, not the allocation-free export. It is a convenience integration for collectd shops, not the zero-footprint agent. Use the Rust probe where the footprint matters, and the Python plugin where drop-in collectd compatibility matters more.</p>
+      <p>One caveat: this path runs in CPython doing blocking connects. It shares none of the Rust binary's properties: not the <code>musl</code> footprint, not the <code>io_uring</code> server, not the allocation-free export. It is a convenience integration for collectd shops, not the zero-footprint agent. Use the Rust probe where the footprint matters, and the Python plugin where drop-in collectd compatibility matters more.</p>
 
       <h3>Conclusion</h3>
 
