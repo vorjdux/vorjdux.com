@@ -245,6 +245,11 @@
 
       <p>In Azure, host networking policy (private virtual networks, load-balancer NAT, ACLs, QoS) is implemented on the physical host by the Virtual Filtering Platform (VFP), Azure's programmable virtual switch. On VMs with Accelerated Networking, the steady-state datapath for established flows is offloaded to a SmartNIC (FPGA) and bypasses the host CPU. The host software path handles only the first packet of a flow and any traffic that is not offloaded.</p>
 
+      <figure style="margin: 32px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+        <img src="/articles/img/sdn-datapath.png" alt="SDN Abstraction: Offloading the Data Plane with SmartNICs — ICMP stays on the CPU-bound software path while TCP/UDP uses the accelerated datapath" style="width:100%; display:block;">
+        <figcaption style="padding: 10px 16px; font-size: 12px; color: var(--text-4); font-family: 'JetBrains Mono', monospace; background: var(--bg-panel);">ICMP stays on the CPU-bound vSwitch path. TCP/UDP bypasses the host CPU entirely via the SmartNIC accelerated datapath.</figcaption>
+      </figure>
+
       <p>ICMP is one of the classes that does not benefit from that offload. Microsoft's documentation states that ICMP is treated differently from application traffic and that <code>ping</code> does not measure the accelerated-networking datapath, so ICMP round-trip times do not represent what TCP and UDP workloads experience. ICMP echo is also commonly deprioritized by hosts and routers under load: when more important traffic is queued, echo requests are among the first to be delayed or dropped.</p>
 
       <p>The failure mode we observed follows from this, though it is inference from behavior rather than a documented Azure guarantee. Under host CPU or packets-per-second pressure, ICMP rides the contended software path and its latency inflates, while the offloaded TCP and UDP datapath is unaffected. If a Grafana panel derives inter-node latency from ICMP, any compute load manufactures a network bottleneck that does not exist at L4 or L7.</p>
