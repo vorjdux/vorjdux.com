@@ -4,6 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hardware Is Asynchronous. Most of Our Operating Systems Still Aren't. | Matheus Santos</title>
+  <meta name="description" content="The dominant POSIX model is a synchronous fiction layered over fundamentally asynchronous hardware. A conversation about CharlotteOS, io_uring, and thirty years of bolting async back onto a blocking foundation.">
+  <meta name="author" content="Matheus Santos">
+  <link rel="canonical" href="https://vorjdux.com/articles/hardware-is-async.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://vorjdux.com/articles/hardware-is-async.html">
+  <meta property="og:title" content="Hardware Is Asynchronous. Most of Our Operating Systems Still Aren't.">
+  <meta property="og:description" content="The dominant POSIX model is a synchronous fiction layered over fundamentally asynchronous hardware. A conversation about CharlotteOS, io_uring, and thirty years of bolting async back onto a blocking foundation.">
+  <meta property="og:image" content="https://vorjdux.com/articles/img/async-os.png">
+  <meta property="article:published_time" content="2026-06-01">
+  <meta property="article:author" content="Matheus Santos">
+  <meta property="article:tag" content="Rust">
+  <meta property="article:tag" content="OS">
+  <meta property="article:tag" content="Systems">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hardware Is Asynchronous. Most of Our Operating Systems Still Aren't.">
+  <meta name="twitter:description" content="The dominant POSIX model is a synchronous fiction layered over fundamentally asynchronous hardware. On io_uring, CharlotteOS, and async-first OS design.">
+  <meta name="twitter:image" content="https://vorjdux.com/articles/img/async-os.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Hardware Is Asynchronous. Most of Our Operating Systems Still Aren't.",
+    "description": "The dominant POSIX model is a synchronous fiction layered over fundamentally asynchronous hardware. A conversation about CharlotteOS, io_uring, and thirty years of bolting async back onto a blocking foundation.",
+    "image": "https://vorjdux.com/articles/img/async-os.png",
+    "datePublished": "2026-06-01",
+    "author": {
+      "@type": "Person",
+      "name": "Matheus Santos",
+      "url": "https://vorjdux.com"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Matheus Santos",
+      "url": "https://vorjdux.com"
+    },
+    "url": "https://vorjdux.com/articles/hardware-is-async.html",
+    "keywords": ["async", "operating systems", "io_uring", "POSIX", "Rust", "CharlotteOS", "systems programming", "scheduler activations"]
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/site.css">
   <link rel="stylesheet" href="../css/article.css">
