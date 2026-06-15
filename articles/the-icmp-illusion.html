@@ -219,8 +219,8 @@
 <body>
 
   <nav>
-    <a href="/" class="nav-logo">vorjdux<span class="nav-logo-tld">.com</span><span class="nav-logo-cursor">_</span></a>
-    <a href="/#articles" class="nav-back">← Articles</a>
+    <a href="../" class="nav-logo">vorjdux<span class="nav-logo-tld">.com</span><span class="nav-logo-cursor">_</span></a>
+    <a href="../#articles" class="nav-back">← Articles</a>
   </nav>
 
   <div class="article-wrap">
@@ -246,7 +246,7 @@
       <p>In Azure, host networking policy (private virtual networks, load-balancer NAT, ACLs, QoS) is implemented on the physical host by the Virtual Filtering Platform (VFP), Azure's programmable virtual switch. On VMs with Accelerated Networking, the steady-state datapath for established flows is offloaded to a SmartNIC (FPGA) and bypasses the host CPU. The host software path handles only the first packet of a flow and any traffic that is not offloaded.</p>
 
       <figure style="margin: 32px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
-        <img src="/articles/img/sdn-datapath.png" alt="SDN Abstraction: Offloading the Data Plane with SmartNICs. ICMP stays on the CPU-bound software path while TCP/UDP uses the accelerated datapath" style="width:100%; display:block;">
+        <img src="img/sdn-datapath.png" alt="SDN Abstraction: Offloading the Data Plane with SmartNICs. ICMP stays on the CPU-bound software path while TCP/UDP uses the accelerated datapath" style="width:100%; display:block;">
         <figcaption style="padding: 10px 16px; font-size: 12px; color: var(--text-4); font-family: 'JetBrains Mono', monospace; background: var(--bg-panel);">ICMP stays on the CPU-bound vSwitch path. TCP/UDP bypasses the host CPU entirely via the SmartNIC accelerated datapath.</figcaption>
       </figure>
 
@@ -317,8 +317,31 @@
     </div>
   </div>
 
+  <!-- LIGHTBOX -->
+  <div id="lightbox" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;" onclick="closeLightbox(event)">
+    <button onclick="closeLightbox()" style="position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#f7f8f8;font-size:20px;line-height:1;width:36px;height:36px;border-radius:6px;cursor:pointer;">✕</button>
+    <img id="lightbox-img" src="" alt="" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:92vw;max-height:88vh;border-radius:6px;box-shadow:0 24px 80px rgba(0,0,0,0.6);cursor:default;" onclick="event.stopPropagation()">
+  </div>
+  <script>
+    document.querySelectorAll('figure img').forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        document.getElementById('lightbox-img').src = img.src;
+        document.getElementById('lightbox-img').alt = img.alt;
+        document.getElementById('lightbox').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    function closeLightbox(e) {
+      if (e && e.target === document.getElementById('lightbox-img')) return;
+      document.getElementById('lightbox').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  </script>
+
   <footer>
-    <p>© 2026 Matheus Santos · <a href="/">vorjdux.com</a> · Built with mechanical sympathy.</p>
+    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a> · Built with mechanical sympathy.</p>
   </footer>
 
 </body>
