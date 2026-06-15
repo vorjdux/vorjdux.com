@@ -317,6 +317,29 @@
     </div>
   </div>
 
+  <!-- LIGHTBOX -->
+  <div id="lightbox" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;" onclick="closeLightbox(event)">
+    <button onclick="closeLightbox()" style="position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#f7f8f8;font-size:20px;line-height:1;width:36px;height:36px;border-radius:6px;cursor:pointer;">✕</button>
+    <img id="lightbox-img" src="" alt="" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:92vw;max-height:88vh;border-radius:6px;box-shadow:0 24px 80px rgba(0,0,0,0.6);cursor:default;" onclick="event.stopPropagation()">
+  </div>
+  <script>
+    document.querySelectorAll('figure img').forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        document.getElementById('lightbox-img').src = img.src;
+        document.getElementById('lightbox-img').alt = img.alt;
+        document.getElementById('lightbox').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    function closeLightbox(e) {
+      if (e && e.target === document.getElementById('lightbox-img')) return;
+      document.getElementById('lightbox').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  </script>
+
   <footer>
     <p>© 2026 Matheus Santos · <a href="/">vorjdux.com</a> · Built with mechanical sympathy.</p>
   </footer>
