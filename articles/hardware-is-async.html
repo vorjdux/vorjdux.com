@@ -229,6 +229,11 @@
         <p>Hardware is asynchronous, and almost every operating system we use is not.</p>
       </div>
 
+      <figure style="margin: 32px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+        <img src="/articles/img/async-os.png" alt="OS Design: the asynchronous reality of modern hardware versus the synchronous abstraction of traditional operating systems" style="width:100%; display:block;">
+        <figcaption style="padding: 10px 16px; font-size: 12px; color: var(--text-4); font-family: 'JetBrains Mono', monospace; background: var(--bg-panel);">Left: hardware components run independently and signal completion via queues. Right: Unix/POSIX blocks the calling thread until I/O returns. An async-first OS inverts that default.</figcaption>
+      </figure>
+
       <h2>The retrofit we all live with</h2>
 
       <p>The dominant model, the Unix and POSIX lineage that Linux and the BSDs inherit, was designed around blocking calls and untyped byte streams. You call <code>read</code>, your thread stops until the data is there. That was a reasonable model for the machines of the early 1970s, and it is still a clean way to think. The problem is that real hardware has never worked that way. A disk controller, a NIC, a DMA engine all run independently of the CPU and signal completion later. The synchronous call is a fiction the kernel maintains on top of fundamentally asynchronous machinery.</p>
