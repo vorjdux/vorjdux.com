@@ -272,6 +272,21 @@
     <h2 class="section-title">Things I've<br>figured out the hard way.</h2>
 
     <div class="article-list">
+      <a href="articles/safe-rust-corrupt-wire.html" class="article-card">
+        <div class="article-card-meta">
+          <span class="article-card-date">2026-06</span>
+          <span class="tag accent">Rust</span>
+          <span class="tag">Systems</span>
+          <span class="tag">Networking</span>
+        </div>
+        <h3>Safe Rust, Corrupt Wire</h3>
+        <p>Rust gives you memory safety by construction and stops there. Building Monocoque, a pure-Rust ZeroMQ runtime over io_uring, made that boundary concrete: async cancellation is <code>Drop</code>, which cleans up your buffers and leaves your peer mid-parse. The fix has to be structural for the same reason the memory fix was.</p>
+        <div class="article-card-footer">
+          <div class="tags"></div>
+          <span class="read-more">Read →</span>
+        </div>
+      </a>
+
       <a href="articles/hardware-is-async.html" class="article-card">
         <div class="article-card-meta">
           <span class="article-card-date">2026-06</span>
