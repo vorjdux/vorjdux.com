@@ -73,7 +73,7 @@
 
       <p>While debugging a persistent 4-6 ms latency floor between our application platform and our persistence layer (MongoDB, Redis, and a managed SQL database), we saw the floor appear to degrade under high compute load. The standard observability stack, which leaned on <code>ping</code> metrics, showed erratic spikes reaching about 10 ms. Our first hypothesis was a saturated interface or a hypervisor bottleneck.</p>
 
-      <p>The telemetry was a false positive. We were not hitting a network limit. We were hitting a Software-Defined Networking (SDN) abstraction.</p>
+      <p>The telemetry was a false positive: we were hitting a Software-Defined Networking (SDN) abstraction, not a network limit.</p>
 
       <h3>The problem with ICMP in the cloud</h3>
 
@@ -127,7 +127,7 @@
 
       <p><code>wire-probe</code> also ships a native Python plugin (<code>wire_probe.py</code>). Rather than wrapping the Rust binary, it is a small, self-contained reimplementation that uses Python's <code>socket.create_connection</code>, hooks collectd's <code>read_cb</code>, and emits the same value types as the stock <code>ping</code> plugin (<code>ping</code>, <code>ping_droprate</code>, <code>ping_stddev</code>), so existing dashboards and thresholds work without changes. The plugin also bounds its own work: a total per-<code>read_cb</code> wall-clock budget stops a misconfiguration from starving collectd's read thread.</p>
 
-      <p>One caveat: this path runs in CPython doing blocking connects. It shares none of the Rust binary's properties: not the <code>musl</code> footprint, not the <code>io_uring</code> server, not the allocation-free export. It is a convenience integration for collectd shops, not the zero-footprint agent. Use the Rust probe where the footprint matters, and the Python plugin where drop-in collectd compatibility matters more.</p>
+      <p>One caveat: this path runs in CPython doing blocking connects. It shares none of the Rust binary's properties (the musl footprint, the io_uring server, the allocation-free export path). It is a convenience integration for collectd shops, not the zero-footprint agent. Use the Rust probe where the footprint matters, and the Python plugin where drop-in collectd compatibility matters more.</p>
 
       <h3>Conclusion</h3>
 
