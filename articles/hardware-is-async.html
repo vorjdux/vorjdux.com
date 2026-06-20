@@ -83,7 +83,7 @@
 
       <p>For decades we have been bolting asynchrony back onto that blocking foundation, usually badly. POSIX AIO was awkward and widely avoided. Linux's native AIO only really worked for direct I/O and quietly blocked the rest of the time. Then came <code>io_uring</code>, which is the best async interface Linux has ever had, and it exists in large part because everything before it was inadequate.</p>
 
-      <p>Here is the part worth noticing. <code>io_uring</code> is a completion-ring design: you submit operations into one queue, the kernel completes them, and you collect results from another. That is not a new idea. Windows NT shipped overlapped I/O and I/O completion ports back in the mid-1990s, and they do exactly this. So <code>io_uring</code> is not Linux inventing something. It is Linux converging, thirty years later, on a completion model another mainstream OS has had the whole time. The async-first idea is old. What is rare is making it the foundation instead of a late addition.</p>
+      <p><code>io_uring</code> is a completion-ring design: you submit operations into one queue, the kernel completes them, and you collect results from another. That is not a new idea. Windows NT shipped overlapped I/O and I/O completion ports back in the mid-1990s, and they do exactly this. So <code>io_uring</code> is not Linux inventing something. It is Linux converging, thirty years later, on a completion model another mainstream OS has had the whole time. The async-first idea is old. What is rare is making it the foundation instead of a late addition.</p>
 
       <h2>Everything is the same handle</h2>
 
@@ -129,7 +129,7 @@
   </div>
 
   <footer>
-    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a> · Built with mechanical sympathy.</p>
+    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a></p>
   </footer>
 
 </body>

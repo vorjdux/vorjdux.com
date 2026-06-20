@@ -63,7 +63,7 @@
       Principal Systems Architect &amp; Head of Platform
     </div>
     <h1>Engineering at the<br><em>intersection</em> of<br>bare-metal and strategy</h1>
-    <p>Nearly 30 years building high-throughput systems where mechanical sympathy meets product scale. Zero-trust architectures, no silent systemic debt.</p>
+    <p>Nearly 30 years building high-throughput distributed systems in Rust, C++, and Python. Zero-trust security, every change gated through CI and design review.</p>
     <div class="hero-actions">
       <a href="#competencies" class="btn-primary">Explore Expertise</a>
       <a href="#oss" class="btn-ghost">Open Source ↗</a>
@@ -86,14 +86,14 @@
       <div class="about-text">
         <h2 class="section-title">Started at 14.<br>Still dismantling things.</h2>
         <p class="section-body">
-          I started programming out of obsessive curiosity. I wanted to dismantle things and understand how they work at the base level. Today I build at the exact intersection of low-level system mechanics, scalable architecture, and high-level product strategy.
+          I started programming out of obsessive curiosity. I wanted to dismantle things and understand how they work at the base level. Today I work across low-level systems and product decisions, from bare-metal I/O to platform architecture.
         </p>
         <p class="section-body">
-          My engineering philosophy is rooted in <strong>mechanical sympathy</strong> and <strong>semantic consistency</strong>. Over the past decade I've designed foundational platform ecosystems: from standardising Python orchestration layers to building custom zero-copy messaging kernels in Rust and C++, pushing past runtime ceilings and eliminating latency on the critical path.
+          I optimize for how the machine actually executes and keep structure consistent so systems stay legible. Over the past decade I've standardised Python orchestration layers, built zero-copy messaging kernels in Rust and C++, and removed latency from the critical path.
         </p>
 
         <div class="quote-block" style="margin-top:28px;">
-          <p>I don't rely on default abstractions. I enforce execution isolation and backward planning, creating frameworks and strict CI/CD governance that let developers deploy into mission-critical, ACID-compliant environments without introducing silent systemic debt.</p>
+          <p>I don't rely on default abstractions. I enforce execution isolation and backward planning, creating frameworks and strict CI/CD governance that let developers deploy into mission-critical, ACID-compliant environments without accumulating silent technical debt.</p>
         </div>
       </div>
     </div>
@@ -108,24 +108,20 @@
 
     <div class="grid-2">
       <div class="card">
-        <div class="card-icon">⚙️</div>
-        <h3>Systems Architecture</h3>
+        <h3>Systems architecture</h3>
         <p>High-throughput distributed systems, event-driven topologies (NATS/ZMQ), and microservice boundary enforcement at scale.</p>
       </div>
       <div class="card">
-        <div class="card-icon">⚡</div>
-        <h3>Concurrency &amp; Performance</h3>
+        <h3>Concurrency &amp; performance</h3>
         <p>Deep OS-level primitives: epoll/kqueue reactors, POSIX fork safety, sync/async impedance resolution, and latency optimisation in Rust, C++, and Python.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>Data Integrity &amp; Strategy</h3>
+        <h3>Data integrity &amp; strategy</h3>
         <p>ACID/BASE compliance, strict tenant-scoping in multi-cloud environments, and aligning deep-tech infrastructure with product monetisation goals.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🧭</div>
-        <h3>Engineering Leadership</h3>
-        <p>Building developer culture through semantic consistency, precise taxonomies, and ADR-driven decision-making. Bridging business vision to bare-metal precision.</p>
+        <h3>Engineering leadership</h3>
+        <p>Building developer culture through consistent naming, precise taxonomies, and ADR-driven decision-making. Bridging business vision to bare-metal execution.</p>
       </div>
     </div>
   </section>
@@ -135,7 +131,7 @@
   <!-- STACK -->
   <section id="stack">
     <div class="section-label">Technical Expertise</div>
-    <h2 class="section-title">The tools.<br>Not the dogma.</h2>
+    <h2 class="section-title">Languages and tools.</h2>
 
     <div class="tech-section">
       <div class="tech-category">
@@ -215,7 +211,7 @@
       <a href="https://github.com/vorjdux/monocoque" target="_blank" rel="noopener" class="oss-card">
         <div class="oss-card-body">
           <h3>Monocoque</h3>
-          <p>A Rust-native ZeroMQ-compatible messaging runtime built on io_uring. Built to outperform libzmq while preserving Rust's memory safety guarantees. Zero-copy message handling, syscall-minimal IO, and a runtime-agnostic architecture.</p>
+          <p>A pure-Rust alternative to libzmq with no FFI boundary. Built on io_uring with zero-copy message fanout, syscall-minimal IO, and memory safety by construction.</p>
           <div class="card-tags">
             <span class="tag accent">Rust</span>
             <span class="tag">github.com/vorjdux/monocoque</span>
@@ -344,7 +340,7 @@
   </section>
 
   <footer>
-    <p>© 2026 Matheus Santos · <a href="https://vorjdux.com">vorjdux.com</a> · Built with mechanical sympathy.</p>
+    <p>© 2026 Matheus Santos · <a href="https://vorjdux.com">vorjdux.com</a></p>
   </footer>
 
 </body>
