@@ -69,7 +69,7 @@
 
     <div class="article-body">
 
-      <p>I have been writing network code for a long time, long enough that none of the ways a connection can betray you are surprising anymore. A timeout that lands mid-write. A peer left parsing a length prefix for bytes that never arrive. A stream that is structurally fine and semantically garbage. That is the job. What caught my attention while building Monocoque was not that any of this can happen. It was the specific shape Rust gives the problem, and what that shape says about where the language's guarantees actually stop.</p>
+      <p>I have been writing network code for a long time, long enough that none of the ways a connection can betray you are surprising anymore. A timeout that lands mid-write. A peer left parsing a length prefix for bytes that never arrive. A stream that is structurally fine and semantically garbage. None of that is surprising anymore. What caught my attention while building Monocoque was not that any of this can happen. It was the specific shape Rust gives the problem, and what that shape says about where the language's guarantees actually stop.</p>
 
       <p>A word on what Monocoque is, since the rest of this leans on it. It is a pure-Rust messaging runtime that speaks ZeroMQ's wire protocol, ZMTP 3.1. It is a from-scratch, native-Rust implementation of what libzmq does, so a Rust program can talk to ordinary ZeroMQ peers, using the familiar socket patterns, without linking the C library or going through an FFI binding. It implements the ZeroMQ socket patterns natively, stays wire-compatible with existing libzmq peers, and is checked against real libzmq in its interop tests. The I/O runs on io_uring through compio, which keeps it completion-based and syscall-minimal and deliberately not tied to Tokio. Messages are handled zero-copy, a received frame becoming a reference-counted buffer that can fan out to many subscribers without a copy, and it supports the ZeroMQ security mechanisms, including CURVE. Throughout, every unsafe operation is confined to a single auditable module. The source is at <a href="https://github.com/vorjdux/monocoque" target="_blank" rel="noopener">github.com/vorjdux/monocoque</a>.</p>
 
@@ -83,15 +83,15 @@
 
       <h2>Safety by construction, for memory</h2>
 
-      <p>Start with the part Rust does extraordinarily well. io_uring forces an ownership question on you immediately, because when you submit a read the kernel takes your buffer and writes into it later, after the call has returned. If a future owns that buffer and is cancelled, which in async Rust means dropped, a naive design frees the buffer while the kernel still intends to write to it. The borrow checker cannot see that hazard, because the other party holding the memory is the kernel, which has no lifetime to reason about. The right response is structure, not vigilance.</p>
+      <p>io_uring forces an ownership question on you immediately, because when you submit a read the kernel takes your buffer and writes into it later, after the call has returned. If a future owns that buffer and is cancelled, which in async Rust means dropped, a naive design frees the buffer while the kernel still intends to write to it. The borrow checker cannot see that hazard, because the other party holding the memory is the kernel, which has no lifetime to reason about. The right response is structure, not vigilance.</p>
 
-      <p>So that is what I built, and the structure is the point. Monocoque uses compio, a completion-first runtime where you move a buffer into an operation and get it back on completion rather than lending it out. Every read lands in a pinned slab page, allocated once, never moved, reference counted, reachable only through the single type permitted to write unsafe in the whole codebase. When the read finishes, that slab is frozen, by value, into immutable <code>Bytes</code> sharing the same allocation, so a frame fans out to many subscribers with no copy and nothing can mutate it afterward. All the danger lives in one module. Everything above it is plain safe Rust. The buffer use-after-free is not a bug I have to remember to avoid. It is a program the types will not let me write.</p>
+      <p>So that is what I built, and the structure is the point. Monocoque uses compio, a completion-first runtime where you move a buffer into an operation and get it back on completion rather than lending it out. Every read lands in a pinned slab page, allocated once, never moved, reference counted, reachable only through the single type permitted to write unsafe in the whole codebase. When the read finishes, that slab is frozen, by value, into immutable <code>Bytes</code> sharing the same allocation, so a frame fans out to many subscribers with no copy and nothing can mutate it afterward. All the danger lives in one module. Everything above it is plain safe Rust. The buffer use-after-free is not a bug I have to remember to avoid; the types will not let me write it.</p>
 
-      <p>This is Rust's actual idea, stated plainly. Not "be careful with memory," but "arrange things so the careless version does not compile." Correctness by construction, and it is one of the best ideas systems programming has had in decades.</p>
+      <p>This is Rust's actual idea, stated plainly: not "be careful with memory," but "arrange things so the careless version does not compile." That idea is one of the best that systems programming has had in decades.</p>
 
       <h2>The idea has a boundary, and cancellation sits on it</h2>
 
-      <p>Here is where the long experience does its work, because what it buys you is the instinct to go looking for the invariants the compiler is not enforcing. In a stateful protocol there is an obvious one: a message is all or nothing on the wire.</p>
+      <p>Long experience buys one thing: the instinct to go looking for the invariants the compiler is not enforcing. In a stateful protocol there is an obvious one: a message is all or nothing on the wire.</p>
 
       <p>A ZeroMQ message is frequently multipart, several frames sent in sequence, which is several awaits in a row. Now bring cancellation back. In most languages an interruption mid-write is something you reason about through control flow, an explicit branch, a cleanup label, a path you can see in the source. Rust's async cancellation is not like that. It is <code>Drop</code>, and it can happen at any await point, structurally and implicitly, with no line of code marking where. That property is a gift for memory, because <code>Drop</code> runs your destructors and the slab discipline holds no matter where you are cut. It is a hazard for protocol state, because <code>Drop</code> unwinds your side of the world and touches nothing on the other side. The frames already sent are gone. The peer is already mid-parse. Dropping the future cannot reach into the kernel's send queue and pull bytes back, and it cannot un-confuse the peer.</p>
 
@@ -105,7 +105,7 @@
 
       <h2>Two boundaries, and the work between them</h2>
 
-      <p>That leaves a clean picture. The borrow checker reasons about memory inside the Rust abstract machine and stops at every edge past it: the kernel mid-syscall, hardware acting on a pointer later, another process across a shared mapping. The runtime keeps your buffers alive across a cancellation and says nothing about whether the message they were forming still means anything. Both are honest, and both draw their line exactly where their guarantee ends. The interesting engineering lives in the space past both lines, the region that is fully memory safe and still wrong, and the move that works there is the same one Rust makes for memory: stop relying on care, encode the invariant in something that cannot be skipped.</p>
+      <p>The borrow checker reasons about memory inside the Rust abstract machine and stops at every edge past it: the kernel mid-syscall, hardware acting on a pointer later, another process across a shared mapping. The runtime keeps your buffers alive across a cancellation and says nothing about whether the message they were forming still means anything. Both are honest, and both draw their line exactly where their guarantee ends. The interesting engineering lives in the space past both lines, the region that is fully memory safe and still wrong, and the move that works there is the same one Rust makes for memory: stop relying on care, encode the invariant in something that cannot be skipped.</p>
 
       <h2>Where this is going</h2>
 
@@ -113,19 +113,15 @@
 
       <h2>The frame worth keeping</h2>
 
-      <p>What I would hand to someone starting a serious systems project in Rust is not a warning, it is a frame. Rust's safety is real, it is narrow, and the narrowness is deliberate: it tells you precisely which invariants it will enforce, which is the only way to know precisely which ones are still yours. Memory it handles by construction. Protocol, state, the atomicity of a message on the wire, the ordering your system promises, those it will protect only if you build the same kind of structure for them that the language built for memory. The borrow checker stops at memory. The runtime stops at the byte. Everything those bytes are meant to mean is engineering, and it always was.</p>
+      <p>What I would hand to someone starting a serious systems project in Rust is a frame, not a warning. Rust's safety is real, it is narrow, and the narrowness is deliberate: it tells you precisely which invariants it will enforce, which is the only way to know precisely which ones are still yours. Memory it handles by construction. Protocol, state, the atomicity of a message on the wire, the ordering your system promises, those it will protect only if you build the same kind of structure for them that the language built for memory. The borrow checker stops at memory. The runtime stops at the byte. Everything those bytes are meant to mean is engineering, and it always was.</p>
 
       <p>Monocoque is early, so there are certainly more of these invariants I have not yet pinned down structurally. That is the actual work, and it is the good part. The tools made memory safe by construction and then handed back the more interesting half of the problem.</p>
-
-      <div class="quote-block">
-        <p>The borrow checker stops at memory. The runtime stops at the byte. Everything those bytes are meant to mean is engineering, and it always was.</p>
-      </div>
 
     </div>
   </div>
 
   <footer>
-    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a> · Built with mechanical sympathy.</p>
+    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a></p>
   </footer>
 
 </body>
