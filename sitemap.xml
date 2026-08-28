@@ -6,6 +6,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://vorjdux.com/articles/judge-and-contestant.html</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vorjdux.com/articles/safe-rust-corrupt-wire.html</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>never</changefreq>
