@@ -225,7 +225,7 @@
 
       <a href="https://github.com/vorjdux/zmq-arena" target="_blank" rel="noopener" class="oss-card">
         <div class="oss-card-body">
-          <h3>zmq-arena</h3>
+          <h3>ZMQ Arena</h3>
           <p>A benchmark harness for ZMTP that measures twenty-one series across eight engines and seven languages under the same conditions. Every target is built inside a pinned image and then run outside any container: the orchestrator chroots into the exported filesystem, so the process it measures is the target itself, in a cgroup v2 leaf with a declared cpuset and a per-run network namespace. Each cell reports throughput, latency quantiles, CPU seconds split across both ends, peak RSS, and syscall counts from perf tracepoints scoped to that cgroup. The host is sampled rather than declared, so a run without bare metal, the performance governor, turbo off and root publishes itself as not admissible with the reasons attached. Results live only in the public dashboard.</p>
           <div class="card-tags">
             <span class="tag accent">Rust</span>
