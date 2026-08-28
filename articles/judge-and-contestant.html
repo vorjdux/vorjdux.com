@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Judge and Contestant: Benchmarking a Library You Wrote | Matheus Santos</title>
+  <meta name="description" content="I wrote Monocoque, one of the libraries in this benchmark. That is exactly why I built ZMQ Arena: a deterministic harness that measures 21 ZMTP series across 8 engines and 7 languages, outside anybody's repository.">
+  <meta name="author" content="Matheus Santos">
+  <link rel="canonical" href="https://vorjdux.com/articles/judge-and-contestant.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://vorjdux.com/articles/judge-and-contestant.html">
+  <meta property="og:title" content="Judge and Contestant: Benchmarking a Library You Wrote">
+  <meta property="og:description" content="I wrote Monocoque, one of the libraries in this benchmark. That is exactly why I built ZMQ Arena: a deterministic harness that measures 21 ZMTP series across 8 engines and 7 languages, outside anybody's repository.">
+  <meta property="og:image" content="https://vorjdux.com/img/matheus.jpg">
+  <meta property="article:published_time" content="2026-08-28">
+  <meta property="article:author" content="Matheus Santos">
+  <meta property="article:tag" content="Benchmarking">
+  <meta property="article:tag" content="Systems">
+  <meta property="article:tag" content="Rust">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Judge and Contestant: Benchmarking a Library You Wrote">
+  <meta name="twitter:description" content="Nobody should believe a benchmark run inside the author's own repository. So I moved the measurement somewhere neutral, and made the harness record the conditions instead of claiming them.">
+  <meta name="twitter:image" content="https://vorjdux.com/img/matheus.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Judge and Contestant: Benchmarking a Library You Wrote",
+    "description": "I wrote Monocoque, one of the libraries in this benchmark. That is exactly why I built ZMQ Arena: a deterministic harness that measures 21 ZMTP series across 8 engines and 7 languages, outside anybody's repository.",
+    "datePublished": "2026-08-28",
+    "author": {
+      "@type": "Person",
+      "name": "Matheus Santos",
+      "url": "https://vorjdux.com"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Matheus Santos",
+      "url": "https://vorjdux.com"
+    },
+    "url": "https://vorjdux.com/articles/judge-and-contestant.html",
+    "keywords": ["ZeroMQ", "ZMTP", "benchmarking", "methodology", "Rust", "libzmq", "io_uring", "epoll", "cgroups", "latency", "throughput", "zmq-arena", "Monocoque"]
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/site.css">
+  <link rel="stylesheet" href="../css/article.css">
+</head>
+<body>
+
+  <nav>
+    <a href="../" class="nav-logo">vorjdux<span class="nav-logo-tld">.com</span><span class="nav-logo-cursor">_</span></a>
+    <a href="../#articles" class="nav-back">← Articles</a>
+  </nav>
+
+  <div class="article-wrap">
+    <div class="article-meta">
+      <span class="article-date">2026-08</span>
+      <span class="tag accent">Benchmarking</span>
+      <span class="tag">Systems</span>
+      <span class="tag">Rust</span>
+    </div>
+
+    <h1>Judge and Contestant: Benchmarking a Library You Wrote</h1>
+
+    <div class="article-body">
+
+      <p>I wrote Monocoque, one of the libraries in this benchmark. That is exactly why I built <a href="https://vorjdux.github.io/zmq-arena/" target="_blank" rel="noopener">ZMQ Arena</a>.</p>
+
+      <p>Some quick context for anyone who has not used ZeroMQ. It is a messaging library, not a broker. There is no server to install and run the way there is with Kafka or RabbitMQ. You link it into your application and you get sockets that already know how to do request/reply, publish/subscribe and work distribution, with reconnection and buffering handled for you. It has been quietly running inside trading systems, telescopes and industrial control for years.</p>
+
+      <p>Underneath it there is a wire protocol called ZMTP. It is documented and open, so anyone can write their own implementation and still talk to everyone else's. That is why there is not just one ZeroMQ. There is the original C++ libzmq, bindings to it in most languages, and a growing set of native implementations rewritten from scratch, several of them in Rust.</p>
+
+      <p>Which brings me to the problem. Benchmarking your own library against other people's inside your own repository is miserable work, and worse, nobody should believe the results. You tune your code all day. You do not tune theirs. Even when you are trying to be fair, you are the one holding the stopwatch, and you are the one who decides when the run was clean enough to publish.</p>
+
+      <p>Then I saw omq.rs running into the same thing, doing its own comparisons against other implementations. Their benchmark work is what gave me the idea. Two of us solving the same problem separately, both stuck being judge and contestant at once.</p>
+
+      <p>So I built a neutral place for it instead.</p>
+
+      <h2>What is actually in the arena</h2>
+
+      <p>ZMQ Arena runs twenty-one measured series across eight engine families, in seven languages: C++, Rust, Python, Ruby, Crystal, C# and Java. libzmq itself, three bindings to it (rust-zmq, tmq and pyzmq), the native Rust implementations (zmq.rs, omq, Monocoque, rzmq and celerity), the omq project's pure-Ruby and pure-Crystal implementations, and the two ports of libzmq into managed runtimes, NetMQ and JeroMQ.</p>
+
+      <p>Every runtime an engine ships is measured separately, because benchmarking a subset would mean choosing which of an engine's configurations is allowed to represent it. So zmq.rs appears three times, once per async runtime it supports, and the gap between those three lines is the runtime rather than the protocol code. Monocoque appears three times for the same reason, once on <code>io_uring</code> and twice on <code>epoll</code> under other runtimes, which is the closest thing I have to a controlled measurement of what the completion-based path actually buys.</p>
+
+      <p>A binding is filed with the engine it binds, so libzmq, rust-zmq, tmq and pyzmq are one C++ engine reached four ways, and the distance between them is mostly language and wrapper overhead. That distinction is on every page of the dashboard, because reading a binding as an implementation gets the conclusion backwards: pyzmq <em>is</em> libzmq, and the gap between those two rows is CPython, not protocol design.</p>
+
+      <p>Five patterns, over IPC and loopback TCP, across a payload sweep of 16, 64, 256, 1024, 4096 and 16384 bytes: throughput as PUSH/PULL one-to-one, latency as a REQ/REP round trip, PUB/SUB to 32 subscribers, fan-out across 4 consumers, fan-in from 4 producers. The 16-byte point is there deliberately. libzmq keeps messages up to roughly 33 bytes inline in the message struct and omq up to roughly 55, so a sweep that starts at 64 never exercises either small-message path, and the engines come out looking more alike at the small end than they really are.</p>
+
+      <p>Per cell, the harness records message rate, byte rate, latency quantiles, CPU seconds, context switches, peak RSS, and syscall counts normalised per thousand messages. The CPU total is attributed to each end of the connection, so sending and receiving cost can be read separately. Everything is measured repeatedly and reported as a robust median with its replicate spread attached.</p>
+
+      <h2>Fairness is structural, or it is not fairness</h2>
+
+      <p>The credibility does not come from me promising to be even-handed. It comes from the shape of the thing.</p>
+
+      <p>Every target is a separate program behind the same command-line contract, with its own <code>Cargo.toml</code>, its own lockfile, its own release profile and its own toolchain pin. Deliberately not workspace members: a shared workspace resolves one dependency graph across every member, which would measure each implementation against whatever the resolver settled on rather than against what it actually ships. None of them live inside anyone's library, mine included.</p>
+
+      <p>Each target is built inside its own pinned image and then executed <em>outside</em> any container. Those are two separate decisions and both matter. Building in an image is what keeps the bench host from drifting, because seven languages on one machine is how one library quietly gets a newer compiler than it had last month. Running outside one is what keeps the measurement honest: the image is flattened to a plain directory and the orchestrator launches the target through <code>ip netns exec</code> and <code>chroot</code>, both of which <code>exec</code> rather than fork, so the process the harness holds <em>is</em> the target. That matters because the telemetry depends on it. CPU and context switches come from <code>getrusage</code> on a direct child, peak memory from polling <code>/proc</code>, syscall counts from <code>perf_event_open</code> tracepoints scoped to the harness's own cgroup. Under a container runtime none of that fails loudly. The numbers still appear; they are just measuring the wrong process tree.</p>
+
+      <p>Each cell runs in a cgroup v2 leaf pinned to four physical cores, with the memory cap the matrix declares, so the two ends of a connection do not time-share a core. TCP cells run in a network namespace created for the run, so that loopback carries their traffic and nothing else. Every engine gets the same IO-lane budget, one background IO thread, set by the matrix rather than inherited from whatever each runtime defaults to. Without that, a 32-subscriber PUB/SUB cell would compare one engine's single lane against another's four, and the result would be a report on default configuration rather than on the engine.</p>
+
+      <p>The tiers split by pattern, never by library. Everything runs the headline set; everything capable of a pattern runs the extended set. The only thing that removes a library from a cell is a documented inability to serve it, so zmq.rs skips fan-out and fan-in because its PUSH/PULL does not multiplex several peers on the bound side, and celerity runs REQ/REP and PUB/SUB only because that is what it implements. A tier whose membership was a list of favoured names would not be a benchmark, and the ranking maths would quietly reward whoever had been let into the extra cells.</p>
+
+      <h2>Provenance is measured, not declared</h2>
+
+      <p>This is the part I care about most, and it is the part that took the longest.</p>
+
+      <p>The orchestrator samples the machine it is about to measure on and writes that sample next to the results: CPU model and count, kernel, the cpufreq governor on every online CPU, turbo state, whether the hypervisor flag is set, whether it is running as root. The render step reads that file. It is never told what the host was, because a pasted "turbo off, C-states locked" is a claim and not evidence.</p>
+
+      <p>From those facts a run derives its own admissibility. A comparison counts only on bare metal, performance governor, turbo disabled, as root. Anything else is still published, with the reasons attached and a "not admissible" badge next to the host on every page. Nobody has to remember to write the caveat, and nobody is able to leave it out. The same applies to what the run actually managed to apply rather than request: whether the cgroup leaf was really created, whether the namespace really existed, whether the syscall counters really registered. A run that silently fell back to the whole machine and one that was properly pinned produce numbers that look alike and mean entirely different things.</p>
+
+      <p>An archive also carries its own build map, where a build id names every version in the measured stack, so it changes the moment any of them does. <code>tmq@0.5.0</code> on its own would have stayed identical across a libzmq 4.3.4 to 4.3.5 upgrade and silently merged two different stacks under one name. Last month's run has to keep reporting last month's versions forever, so it carries them rather than looking them up.</p>
+
+      <h2>The bug that taught me the most</h2>
+
+      <p>Syscall counters name a <em>role</em> in the data path rather than a single syscall, and they do so because of a mistake I would rather explain than bury.</p>
+
+      <p>An early build counted <code>sendmsg</code>. Every implementation in the arena sends with <code>sendto</code>, so that counter read zero for all of them. The wait counter had the same problem: it traced <code>epoll_wait</code>, and the async-io runtimes wait in <code>epoll_pwait</code>, so they scored zero there too. Now think about how a zero renders on an efficiency board. It reads as "no kernel work", which is the best possible score. The least understood runtime won, and it won by being invisible to the instrument.</p>
+
+      <p>So the counters now trace the whole family that can fill each role, and a cell that moved messages with a data-path total of zero is reported as unmeasured rather than as zero. The dashboard leaves a gap. A benchmark's most dangerous failure mode is not being wrong, it is being wrong in a direction that flatters something, and having no way to notice.</p>
+
+      <h2>What the numbers cannot tell you</h2>
+
+      <p>Loopback versus a physical NIC is a real trade-off, not a detail. Loopback collapses part of the kernel path, which changes the batching mechanics that completion interfaces like <code>io_uring</code> exist to exploit, and it removes the driver and the wire from the picture entirely. It is the right substrate for isolating protocol and runtime cost, and it is the wrong one for predicting what a switch and a real NIC will do to your tail. The arena exposes that rather than abstracting it away, which is also why IPC is measured beside TCP: the distance between those two transports for a given library tells you how much of its cost is the kernel's and how much is its own.</p>
+
+      <p>Similarly, a shared host tells you the payload trend and the relative shape. It cannot tell you real tail latency, because a guest cannot lock turbo or C-states and a noisy neighbour is invisible from the inside. The 32-subscriber PUB/SUB cell necessarily oversubscribes its four cores no matter whose machine it is. Every run records its hardware note and every page shows it.</p>
+
+      <p>And the rankings are one board per metric, computed as a geometric mean of each library's per-cell ratio to the libzmq baseline. Never a blended score. These libraries trade off differently on purpose, and a single composite number is mostly a statement about the weights its author chose.</p>
+
+      <h2>Send me your tuning</h2>
+
+      <p>If you maintain one of these libraries and think your target is configured badly, tell me. Send the socket options, the batch sizes, the buffer flags, the knobs you would actually use in production. It goes into the next run. I would rather publish your library at its best than win by leaving it at defaults, and I would rather be corrected in a pull request than believed on my word.</p>
+
+      <p>There are only two rules, and the harness enforces them rather than the review: no dropped data, and a real serialization round trip. A faster but cheating entry fails its cell instead of failing a code review, which is the only version of that rule I trust.</p>
+
+      <p>That is the whole point. If the numbers push these libraries to get faster, good. If they help someone pick the right one for their workload, also good. Nobody needs another benchmark where the author's project happens to come out on top.</p>
+
+      <p>The harness is at <a href="https://github.com/vorjdux/zmq-arena" target="_blank" rel="noopener">github.com/vorjdux/zmq-arena</a> and the results are at <a href="https://vorjdux.github.io/zmq-arena/" target="_blank" rel="noopener">vorjdux.github.io/zmq-arena</a>. The design owes a real debt to the comparison harness in <a href="https://github.com/paddor/omq.rs" target="_blank" rel="noopener">omq.rs</a>: the set of patterns, the idea of a separate bench peer per engine, and building each implementation as a standalone unit all come from there. What I added is the isolation, the kernel telemetry, the history and the dashboard.</p>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Matheus Santos · <a href="../">vorjdux.com</a></p>
+  </footer>
+
+</body>
+</html>
