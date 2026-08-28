@@ -33,7 +33,8 @@
     ],
     "knowsAbout": [
       "Rust", "C++", "Systems Architecture", "Distributed Systems",
-      "io_uring", "Zero-trust Architecture", "Performance Engineering"
+      "io_uring", "Zero-trust Architecture", "Performance Engineering",
+      "ZeroMQ", "ZMTP", "Benchmarking"
     ]
   }
   </script>
@@ -211,10 +212,27 @@
       <a href="https://github.com/vorjdux/monocoque" target="_blank" rel="noopener" class="oss-card">
         <div class="oss-card-body">
           <h3>Monocoque</h3>
-          <p>A pure-Rust alternative to libzmq with no FFI boundary. Built on io_uring with zero-copy message fanout, syscall-minimal IO, and memory safety by construction.</p>
+          <p>A Rust-native messaging runtime that speaks ZeroMQ's wire protocol, ZMTP 3.1, implemented from scratch with no FFI boundary. All 11 socket types, CURVE and PLAIN authentication, TCP and IPC transports, and reconnection and heartbeating on every socket. io_uring by default through compio, with tokio and smol selectable at compile time over the same protocol layer and buffer model. Zero-copy fan-out via refcounted buffers, allocation-free receive, and vectored writes that keep large frame bodies out of userspace.</p>
           <div class="card-tags">
             <span class="tag accent">Rust</span>
+            <span class="tag accent">io_uring</span>
+            <span class="tag accent">ZMTP 3.1</span>
             <span class="tag">github.com/vorjdux/monocoque</span>
+          </div>
+        </div>
+        <div class="oss-card-arrow">↗</div>
+      </a>
+
+      <a href="https://github.com/vorjdux/zmq-arena" target="_blank" rel="noopener" class="oss-card">
+        <div class="oss-card-body">
+          <h3>zmq-arena</h3>
+          <p>A benchmark harness for ZMTP that measures twenty-one series across eight engines and seven languages under the same conditions. Every target is built inside a pinned image and then run outside any container: the orchestrator chroots into the exported filesystem, so the process it measures is the target itself, in a cgroup v2 leaf with a declared cpuset and a per-run network namespace. Each cell reports throughput, latency quantiles, CPU seconds split across both ends, peak RSS, and syscall counts from perf tracepoints scoped to that cgroup. The host is sampled rather than declared, so a run without bare metal, the performance governor, turbo off and root publishes itself as not admissible with the reasons attached. Results live only in the public dashboard.</p>
+          <div class="card-tags">
+            <span class="tag accent">Rust</span>
+            <span class="tag accent">Python</span>
+            <span class="tag">cgroup v2</span>
+            <span class="tag">perf</span>
+            <span class="tag">github.com/vorjdux/zmq-arena</span>
           </div>
         </div>
         <div class="oss-card-arrow">↗</div>
